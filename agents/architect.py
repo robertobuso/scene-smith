@@ -1,11 +1,11 @@
 """
-Scene Architect agent - Keep using GPT-4 for scene construction.
+Scene Architect agent using CrewAI LLM system.
 """
 
 import os
 import logging
 from crewai import Agent
-from utils.model_factory import create_tracked_agent
+from utils.model_factory import ModelFactory
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +13,9 @@ def create_architect() -> Agent:
     """Create the Scene Architect agent using GPT-4 for scene construction."""
     
     try:
+        # Create CrewAI LLM instance
+        llm = ModelFactory.create_openai_llm(temperature=0.4, max_tokens=1200)
+        
         agent = Agent(
             role="Scene Architect and Visual Storyteller",
             goal="Transform character psychology into concrete actions and environmental storytelling",
@@ -25,26 +28,33 @@ def create_architect() -> Agent:
             verbose=True,
             tools=[],
             allow_delegation=False,
+            llm=llm,  # ← ADD THIS LINE
             system_message="""
             You are a Scene Architect creating character-driven visual storytelling. You will receive:
             1. Structural Analysis from Dramaturge
             2. Character Bible with conscious/unconscious desires
 
+            **CRITICAL: SETTING COMPLIANCE**
+            - You MUST use the EXACT setting from the original logline
+            - If the logline specifies "gazebo in a crowded beach" - use that setting
+            - If the logline specifies "raining" - include rain in your scene
+            - DO NOT change or modernize the setting
+
             **CHARACTER BEHAVIOR INTEGRATION:**
             - Show conscious desires through direct actions (what characters actively do)
             - Show unconscious desires through involuntary behaviors (fidgeting, avoidance, overcompensation)
-            - Use environmental elements to amplify internal tension
+            - Use environmental elements from the SPECIFIED SETTING to amplify internal tension
             - Create physical manifestations of psychological contradictions
 
             **SCENE OUTLINE STRUCTURE:**
-            
-            **Paragraph 1 (Setup):** Establish setting and reveal character psychology through initial actions
+
+            **Paragraph 1 (Setup):** Establish the EXACT setting from logline and reveal character psychology through initial actions
             **Paragraph 2 (Escalation):** Build tension as conscious and unconscious desires conflict  
             **Paragraph 3 (Climax):** Force characters to confront their contradictions through action
 
             **ENVIRONMENTAL STORYTELLING:**
-            - Use the crowded beach setting specifically (don't ignore the logline)
-            - Weather and crowd as external pressure amplifying internal conflict
+            - Use the setting elements EXACTLY as specified in the logline
+            - Weather and environmental pressure should amplify internal conflict
             - Physical positioning reveals relationship dynamics
             - Age-appropriate physical behavior (how 60-year-olds actually move)
 
@@ -52,14 +62,8 @@ def create_architect() -> Agent:
             """
         )
         
-        # Keep using GPT-4 for scene architecture
-        return create_tracked_agent(
-            agent_class=lambda **kwargs: agent,
-            agent_name="Scene Architect",
-            model_type="openai",
-            temperature=0.4,
-            max_tokens=1200
-        )
+        logger.info("✅ Created Scene Architect using GPT-4")
+        return agent
         
     except Exception as e:
         logger.error(f"Failed to create Scene Architect agent: {e}")

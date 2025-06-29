@@ -1,11 +1,11 @@
 """
-Creative Reviewer agent using Claude for detecting AI-like writing.
+Creative Reviewer agent using CrewAI LLM system.
 """
 
 import os
 import logging
 from crewai import Agent
-from utils.model_factory import create_tracked_agent
+from utils.model_factory import ModelFactory
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +13,9 @@ def create_reviewer() -> Agent:
     """Create the Creative Reviewer agent using Claude for natural writing detection."""
     
     try:
+        # Create CrewAI LLM instance
+        llm = ModelFactory.create_claude_llm(temperature=0.3, max_tokens=2000)
+        
         agent = Agent(
             role="Multi-Lens Director and Script Doctor",
             goal="Eliminate AI-like writing and deliver production-ready screenplay with authentic human psychology",
@@ -26,6 +29,7 @@ def create_reviewer() -> Agent:
             verbose=True,
             allow_delegation=False,
             tools=[],
+            llm=llm,  # ← ADD THIS LINE
             system_message="""
             You are a Multi-Lens Director eliminating AI-like writing. You will receive:
             1. Character Bible with conscious/unconscious desires
@@ -55,6 +59,12 @@ def create_reviewer() -> Agent:
             - People avoid direct emotional confrontation
             - Hidden agendas create subtext beneath surface conversations
 
+            **SETTING COMPLIANCE CHECK:**
+            - Verify the scene uses the EXACT setting from the original logline
+            - If the logline specifies a gazebo, beach, rain, etc. - these MUST be present
+            - Flag any setting deviations and correct them in your final screenplay
+            - Environmental elements should serve the story, not replace the specified setting
+
             **YOUR FINAL OUTPUT:**
             A complete, professionally formatted screenplay scene that eliminates all AI-writing patterns 
             and demonstrates authentic human psychology in action.
@@ -75,14 +85,8 @@ def create_reviewer() -> Agent:
             """
         )
         
-        # Use Claude for detecting and fixing AI-like writing
-        return create_tracked_agent(
-            agent_class=lambda **kwargs: agent,
-            agent_name="Creative Reviewer",
-            model_type="claude",
-            temperature=0.3,
-            max_tokens=2000
-        )
+        logger.info("✅ Created Creative Reviewer using Claude")
+        return agent
         
     except Exception as e:
         logger.error(f"Failed to create Creative Reviewer agent: {e}")

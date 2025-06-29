@@ -1,11 +1,11 @@
 """
-Dramaturge agent - Keep using GPT-4 for structural analysis.
+Dramaturge agent using CrewAI LLM system.
 """
 
 import os
 import logging
 from crewai import Agent
-from utils.model_factory import create_tracked_agent
+from utils.model_factory import ModelFactory
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +13,9 @@ def create_dramaturge() -> Agent:
     """Create the Dramaturge agent using GPT-4 for structural analysis."""
     
     try:
+        # Create CrewAI LLM instance
+        llm = ModelFactory.create_openai_llm(temperature=0.3, max_tokens=1000)
+        
         agent = Agent(
             role="Dramaturge and Story Structure Expert",
             goal="Analyze loglines using proven dramatic principles and identify character contradiction opportunities",
@@ -25,6 +28,7 @@ def create_dramaturge() -> Agent:
             ),
             verbose=True,
             allow_delegation=False,
+            llm=llm,  # ← ADD THIS LINE
             system_message="""
             You are a Dramaturge providing structural analysis that enables character contradiction development.
 
@@ -48,14 +52,8 @@ def create_dramaturge() -> Agent:
             """
         )
         
-        # Keep using GPT-4 for structural analysis
-        return create_tracked_agent(
-            agent_class=lambda **kwargs: agent,
-            agent_name="Dramaturge",
-            model_type="openai",
-            temperature=0.3,
-            max_tokens=1000
-        )
+        logger.info("✅ Created Dramaturge using GPT-4")
+        return agent
         
     except Exception as e:
         logger.error(f"Failed to create Dramaturge agent: {e}")

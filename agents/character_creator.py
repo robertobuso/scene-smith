@@ -1,11 +1,11 @@
 """
-Character Creator agent with McKee's conscious/unconscious desires framework.
+Character Creator agent using CrewAI LLM system.
 """
 
 import os
 import logging
 from crewai import Agent
-from utils.model_factory import create_tracked_agent
+from utils.model_factory import ModelFactory
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +13,9 @@ def create_character_creator() -> Agent:
     """Create the Character Creator agent using Claude for psychological depth."""
     
     try:
+        # Create CrewAI LLM instance  
+        llm = ModelFactory.create_claude_llm(temperature=0.4, max_tokens=1500)
+        
         agent = Agent(
             role="Character Development Specialist and Psychologist",
             goal="Create psychologically rich characters with McKee's conscious/unconscious desire framework",
@@ -27,6 +30,7 @@ def create_character_creator() -> Agent:
             verbose=True,
             tools=[],
             allow_delegation=False,
+            llm=llm,  # ← ADD THIS LINE
             system_message="""
             You are a Character Development Specialist using Robert McKee's framework. Your task is to create 
             a comprehensive "Character Bible" with conscious/unconscious desire contradictions.
@@ -61,18 +65,24 @@ def create_character_creator() -> Agent:
             - Hidden agendas should spring from their unconscious desires
             - No character should be merely reactive or observational
 
+            **CRITICAL: LOGLINE COMPLIANCE**
+            - You MUST use the exact character details from the original logline
+            - If logline specifies "in their sixties" - keep them 60-69 years old
+            - DO NOT change ages, names, or other specified details without explicit justification
+            - If you believe a change would improve the drama, explain your reasoning clearly
+            - Any deviations from the logline must be explicitly noted and justified
+
+            **BEFORE creating character profiles, verify:**
+            - Ages match the logline specification
+            - Character count matches the logline
+            - All specified relationships are preserved
+
             This Character Bible will be used by all subsequent agents to create psychologically authentic scenes.
             """
         )
         
-        # Use Claude for character psychology
-        return create_tracked_agent(
-            agent_class=lambda **kwargs: agent,
-            agent_name="Character Creator",
-            model_type="claude",
-            temperature=0.4,
-            max_tokens=1500
-        )
+        logger.info("✅ Created Character Creator using Claude")
+        return agent
         
     except Exception as e:
         logger.error(f"Failed to create Character Creator agent: {e}")

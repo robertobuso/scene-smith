@@ -1,11 +1,11 @@
 """
-Dialogue Specialist agent using Claude for authentic character voices.
+Dialogue Specialist agent using CrewAI LLM system.
 """
 
 import os
 import logging
 from crewai import Agent
-from utils.model_factory import create_tracked_agent
+from utils.model_factory import ModelFactory
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +13,9 @@ def create_dialogue_specialist() -> Agent:
     """Create the Dialogue Specialist agent using Claude for natural dialogue."""
     
     try:
+        # Create CrewAI LLM instance
+        llm = ModelFactory.create_claude_llm(temperature=0.5, max_tokens=1000)
+        
         agent = Agent(
             role="Dialogue Specialist and Character Voice Expert",
             goal="Create authentic dialogue that reveals character psychology and contradictory desires",
@@ -27,6 +30,7 @@ def create_dialogue_specialist() -> Agent:
             verbose=True,
             allow_delegation=False,
             tools=[],
+            llm=llm,  # ← ADD THIS LINE
             system_message="""
             You are a Dialogue Specialist creating authentic character voices. You will receive:
             1. Character Bible with conscious/unconscious desires
@@ -77,14 +81,8 @@ def create_dialogue_specialist() -> Agent:
             """
         )
         
-        # Use Claude for authentic dialogue
-        return create_tracked_agent(
-            agent_class=lambda **kwargs: agent,
-            agent_name="Dialogue Specialist",
-            model_type="claude",
-            temperature=0.5,
-            max_tokens=1000
-        )
+        logger.info("✅ Created Dialogue Specialist using Claude")
+        return agent
         
     except Exception as e:
         logger.error(f"Failed to create Dialogue Specialist agent: {e}")

@@ -11,7 +11,6 @@ from agents.character_creator import create_character_creator
 from agents.architect import create_architect
 from agents.dialogue import create_dialogue_specialist
 from agents.reviewer import create_reviewer
-from utils.cost_tracker import cost_tracker
 import os
 
 logger = logging.getLogger(__name__)
@@ -30,8 +29,6 @@ class MixedModelOutput:
     final_screenplay: str = ""
     # PRODUCTION METADATA
     production_log: List[str] = field(default_factory=list)
-    total_cost: float = 0.0
-    cost_by_model: dict = field(default_factory=dict)
 
 class MixedModelSceneSmithCrew:
     """
@@ -62,15 +59,14 @@ class MixedModelSceneSmithCrew:
             # ACT III: POST-PRODUCTION
             self.creative_reviewer = create_reviewer()         # Claude (AI detection & polish)
             
-            # Reset cost tracker for this session
-            cost_tracker.costs.clear()
+            # REMOVE: All cost_tracker references
             
             logger.info("Mixed-Model Production Studio initialized successfully")
             
         except Exception as e:
             logger.error(f"Failed to initialize Mixed-Model Studio: {e}")
             raise
-    
+
     def generate_scene(self, logline: str) -> MixedModelOutput:
         """Generate scene using mixed AI models with cost tracking."""
         logger.info(f"Starting Mixed-Model Production for: {logline}")
@@ -113,15 +109,20 @@ class MixedModelSceneSmithCrew:
             # Task 3: Scene Outline (GPT-4)
             task_scene_outline = Task(
                 description=f"""
-                Create scene outline showing character contradictions in action:
+                Create a SINGLE scene outline (not multiple scenes) showing character contradictions in action:
                 
                 ANALYSIS: {{task_analyze}}
                 CHARACTER BIBLE: {{task_character_bible}}
                 
-                Show how conscious and unconscious desires create behavioral contradictions.
+                REQUIREMENTS:
+                - ONE scene only, taking place in the EXACT setting from the logline
+                - 3 paragraphs maximum (Setup, Escalation, Climax)
+                - Show how conscious and unconscious desires create behavioral contradictions
+                - Keep all action within the specified location
+                - Focus on one dramatic moment, not a complete story
                 """,
                 agent=self.scene_architect,
-                expected_output="Scene outline with character psychology driving action.",
+                expected_output="Single scene outline (3 paragraphs) with character psychology driving action.",
                 context=[task_analyze, task_character_bible]
             )
             
@@ -133,10 +134,14 @@ class MixedModelSceneSmithCrew:
                 CHARACTER BIBLE: {{task_character_bible}}
                 SCENE OUTLINE: {{task_scene_outline}}
                 
-                Create authentic 60-year-old speech patterns with meaningful subtext.
+                CONSTRAINTS:
+                - Maximum 8-12 lines of dialogue total
+                - Single scene only (use the setting from the logline)
+                - Focus on one key dramatic moment
+                - Create authentic 60-year-old speech patterns with meaningful subtext.
                 """,
                 agent=self.dialogue_specialist,
-                expected_output="Authentic dialogue revealing character contradictions.",
+                expected_output="8-12 lines of authentic dialogue revealing character contradictions.",
                 context=[task_character_bible, task_scene_outline]
             )
             
@@ -184,15 +189,11 @@ class MixedModelSceneSmithCrew:
             output.final_screenplay = str(tasks[4].output)
             
             # Add cost tracking data
-            output.total_cost = cost_tracker.get_total_cost()
-            output.cost_by_model = cost_tracker.get_cost_by_model()
-            
             output.production_log.append("Mixed-Model Production completed successfully")
-            cost_tracker.print_summary()
-            
+
             logger.info("Mixed-Model Production completed successfully")
             return output
-            
+                        
         except Exception as e:
             logger.error(f"Mixed-Model Production failed: {e}")
             output.production_log.append(f"Production failed: {str(e)}")

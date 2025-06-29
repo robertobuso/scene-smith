@@ -8,6 +8,7 @@ from typing import Optional
 from dotenv import load_dotenv
 from crew import MixedModelSceneSmithCrew, MixedModelOutput
 from utils.logging_config import setup_logging
+import agentops
 
 def setup_environment() -> bool:
     """Setup environment variables and logging."""
@@ -19,6 +20,8 @@ def setup_environment() -> bool:
         missing_keys.append("OPENAI_API_KEY")
     if not os.getenv("ANTHROPIC_API_KEY"):
         missing_keys.append("ANTHROPIC_API_KEY")
+    if not os.getenv("AGENTOPS_API_KEY"):  # ← ADD THIS LINE
+        missing_keys.append("AGENTOPS_API_KEY")  # ← ADD THIS LINE
         
     if missing_keys:
         logging.error(f"Missing API keys: {', '.join(missing_keys)}")
@@ -41,7 +44,7 @@ def get_user_input() -> Optional[str]:
     return logline if logline else None
 
 def display_mixed_model_results(output: MixedModelOutput) -> None:
-    """Display Mixed-Model Production results with cost breakdown."""
+    """Display Mixed-Model Production results."""
     
     print("\n" + "=" * 80)
     print("🎭 MIXED-MODEL PRODUCTION RESULTS")
@@ -72,39 +75,44 @@ def display_mixed_model_results(output: MixedModelOutput) -> None:
     print("=" * 40)
     print(output.final_screenplay)
     
-    # Cost Summary
-    print("\n" + "=" * 80)
-    print("💰 PRODUCTION COST BREAKDOWN")
-    print("=" * 80)
-    for model, cost in output.cost_by_model.items():
-        print(f"{model}: ${cost:.4f}")
-    print(f"\n🎯 TOTAL PRODUCTION COST: ${output.total_cost:.4f}")
+    print("\n💰 Cost tracking available in AgentOps dashboard")
     print("=" * 80)
 
 def main() -> None:
-    """Main CLI entry point."""
+    """Main CLI entry point with AgentOps tracking."""
     if not setup_environment():
         return
     
     logger = logging.getLogger(__name__)
     logger.info("Starting Mixed-Model SceneSmith")
     
+    # Initialize AgentOps ONCE at the start
+    agentops.init(api_key=os.getenv("AGENTOPS_API_KEY"))
+    
     logline = get_user_input()
     if not logline:
         print("Error: Please provide a valid logline.")
+        agentops.end_trace('Failed')  # ← UPDATED METHOD
         return
     
     print(f"\n🚀 Starting Mixed-Model Production...")
     print("🤖 Using GPT-4 for structure, Claude for psychology & dialogue")
+    print("📊 Cost tracking via AgentOps")
     
     try:
         studio = MixedModelSceneSmithCrew()
         output = studio.generate_scene(logline)
         display_mixed_model_results(output)
         
+        # End AgentOps session successfully
+        agentops.end_trace('Success')  # ← UPDATED METHOD
+        
     except Exception as e:
         logger.error(f"Production error: {str(e)}", exc_info=True)
         print(f"\n❌ Production Error: {str(e)}")
+        
+        # End AgentOps session with failure
+        agentops.end_trace('Failed')  # ← UPDATED METHOD
 
 if __name__ == "__main__":
     main()
