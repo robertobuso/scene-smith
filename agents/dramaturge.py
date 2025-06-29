@@ -1,45 +1,61 @@
 """
-Dramaturge agent - Expert in story structure and dramatic theory.
+Dramaturge agent - Keep using GPT-4 for structural analysis.
 """
 
 import os
 import logging
 from crewai import Agent
-from langchain_openai import ChatOpenAI
-from utils.prompts import DRAMATURGE_PROMPTS
+from utils.model_factory import create_tracked_agent
 
 logger = logging.getLogger(__name__)
 
 def create_dramaturge() -> Agent:
-    """Create the Dramaturge agent for structural analysis."""
+    """Create the Dramaturge agent using GPT-4 for structural analysis."""
     
     try:
-        llm = ChatOpenAI(
-            model=os.getenv("OPENAI_MODEL", "gpt-4"),
-            temperature=float(os.getenv("TEMPERATURE_DRAMATURGE", "0.3")),
-            max_tokens=int(os.getenv("OPENAI_MAX_TOKENS", "1000"))
-        )
-        
         agent = Agent(
             role="Dramaturge and Story Structure Expert",
-            goal="Analyze loglines and break them down into compelling dramatic structure using proven storytelling principles",
+            goal="Analyze loglines using proven dramatic principles and identify character contradiction opportunities",
             backstory=(
-                "You are a master dramaturge with deep expertise in Robert McKee's 'Story', "
-                "Syd Field's three-act structure, Blake Snyder's 'Save the Cat', and Joseph Campbell's "
-                "Hero's Journey. You dissect loglines to uncover their dramatic potential. "
-                "You believe that a story is only as strong as its foundation, and your purpose is to "
-                "provide a rock-solid structural analysis covering genre, conflict, and most importantly, "
-                "the emotional stakes. You ensure every creative choice that follows is grounded in "
-                "sound dramatic theory."
+                "You are a master dramaturge with expertise in Robert McKee's 'Story', Syd Field's three-act "
+                "structure, and character psychology. You excel at identifying the structural foundation that "
+                "will support authentic character development. You understand that great stories are built on "
+                "character contradictions and you lay the groundwork for the Character Creator to develop "
+                "McKee's conscious/unconscious desire framework."
             ),
             verbose=True,
             allow_delegation=False,
-            llm=llm,
-            system_message=DRAMATURGE_PROMPTS["system_message"]
+            system_message="""
+            You are a Dramaturge providing structural analysis that enables character contradiction development.
+
+            **YOUR ANALYSIS MUST INCLUDE:**
+            1. **GENRE & TONE:** Primary genre and emotional tenor
+            2. **PROTAGONIST IDENTIFICATION:** Who is the central character driving the action
+            3. **CENTRAL CONFLICT:** What opposing forces create tension
+            4. **STAKES:** What does each character stand to gain/lose
+            5. **CHARACTER CONTRADICTION OPPORTUNITIES:** Identify where each character might have 
+               opposing conscious/unconscious desires (set up for Character Creator)
+            6. **THEME:** The central question or argument the scene explores
+            7. **DRAMATIC BEATS:** Key moments of tension and release
+
+            **FOCUS ON CHARACTER PSYCHOLOGY SETUP:**
+            - Identify what each character SAYS they want in this situation
+            - Suggest what they might ACTUALLY want deep down (opposite of surface desire)
+            - Note relationship dynamics that could create internal contradictions
+            - Highlight age-appropriate behavioral considerations (60-year-olds)
+
+            Your analysis provides the foundation for authentic character development and contradiction.
+            """
         )
         
-        logger.info("Dramaturge agent created successfully")
-        return agent
+        # Keep using GPT-4 for structural analysis
+        return create_tracked_agent(
+            agent_class=lambda **kwargs: agent,
+            agent_name="Dramaturge",
+            model_type="openai",
+            temperature=0.3,
+            max_tokens=1000
+        )
         
     except Exception as e:
         logger.error(f"Failed to create Dramaturge agent: {e}")
