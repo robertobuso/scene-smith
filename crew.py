@@ -111,11 +111,13 @@ class MixedModelSceneSmithCrew:
                 description=f"""
                 Create a SINGLE scene outline (not multiple scenes) showing character contradictions in action:
                 
+                ORIGINAL LOGLINE: '{logline}'
                 ANALYSIS: {{task_analyze}}
                 CHARACTER BIBLE: {{task_character_bible}}
                 
                 REQUIREMENTS:
-                - ONE scene only, taking place in the EXACT setting from the logline
+                - ONE scene only, taking place in the EXACT setting from the logline: '{logline}'
+                - Use EXACT ages, location, and weather from the original logline
                 - 3 paragraphs maximum (Setup, Escalation, Climax)
                 - Show how conscious and unconscious desires create behavioral contradictions
                 - Keep all action within the specified location
@@ -153,9 +155,12 @@ class MixedModelSceneSmithCrew:
                 description=f"""
                 Eliminate AI-like writing and deliver production-ready screenplay:
                 
+                ORIGINAL LOGLINE: '{logline}'
                 CHARACTER BIBLE: {{task_character_bible}}
                 SCENE OUTLINE: {{task_scene_outline}}
                 DIALOGUE: {{task_dialogue}}
+                
+                CRITICAL: Ensure final screenplay uses EXACT setting, ages, and details from original logline: '{logline}'
                 
                 Remove purple prose, clichés, and artificial patterns. Create authentic human behavior.
                 """,

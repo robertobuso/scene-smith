@@ -105,14 +105,14 @@ def main() -> None:
         display_mixed_model_results(output)
         
         # End AgentOps session successfully
-        agentops.end_trace('Success')  # ← UPDATED METHOD
+        agentops.end_session('Success')  # ← CORRECTED METHOD
         
     except Exception as e:
         logger.error(f"Production error: {str(e)}", exc_info=True)
         print(f"\n❌ Production Error: {str(e)}")
         
         # End AgentOps session with failure
-        agentops.end_trace('Failed')  # ← UPDATED METHOD
+        agentops.end_session('Failed')  # ← CORRECTED METHOD
 
 if __name__ == "__main__":
     main()

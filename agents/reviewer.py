@@ -27,9 +27,9 @@ def create_reviewer() -> Agent:
                 "purple prose, clichéd metaphors, and 'written' dialogue in favor of authentic human behavior."
             ),
             verbose=True,
-            allow_delegation=False,
+            allow_delegation=True,
             tools=[],
-            llm=llm,  # ← ADD THIS LINE
+            llm=llm,
             system_message="""
             You are a Multi-Lens Director eliminating AI-like writing. You will receive:
             1. Character Bible with conscious/unconscious desires
