@@ -77,29 +77,39 @@ class MixedModelSceneSmithCrew:
             # ===== ACT I: PRE-PRODUCTION =====
             logger.info("🎬 ACT I: PRE-PRODUCTION (GPT-4 + Claude)")
             
-            # Task 1: Dramatic Structure (GPT-4)
+            # Task 1: McKee Scene Analysis (not story analysis)
             task_analyze = Task(
                 description=f"""
-                Analyze this logline for character contradiction opportunities: '{logline}'
+                Analyze this logline to identify ONE McKee-style scene: '{logline}'
                 
-                Identify where each character might have opposing conscious/unconscious desires.
-                Set up the foundation for McKee's character development framework.
+                FOCUS ON SINGLE SCENE EXTRACTION:
+                - Identify the specific moment of value transformation
+                - Define opening and closing emotional states for main character
+                - Outline 3-5 key beats that drive the change
+                - Ensure scene fits 2-3 screenplay pages
+                
+                This is NOT a complete story analysis - focus on ONE transformative moment.
                 """,
                 agent=self.dramaturge,
-                expected_output="Structural analysis with character contradiction opportunities."
+                expected_output="McKee scene analysis identifying single value shift with beat structure."
             )
             
             # Task 2: Character Bible with Conscious/Unconscious Desires (Claude)
             task_character_bible = Task(
                 description=f"""
-                Create Character Bible using McKee's conscious/unconscious desire framework:
+                Create focused character profiles for the SINGLE SCENE:
                 
                 {{task_analyze}}
                 
-                For each character, identify contradictory conscious and unconscious desires that create internal tension.
+                For each character in this specific scene moment:
+                - Conscious desire during this scene
+                - Unconscious desire that creates internal conflict
+                - How this contradiction manifests in behavior during the 2-3 page scene
+                
+                Focus only on character psychology relevant to this ONE scene transformation.
                 """,
                 agent=self.character_creator,
-                expected_output="Character Bible with McKee's conscious/unconscious desire contradictions.",
+                expected_output="Character profiles focused on single scene's value shift dynamics.",
                 context=[task_analyze]
             )
             
@@ -109,41 +119,42 @@ class MixedModelSceneSmithCrew:
             # Task 3: Scene Outline (GPT-4)
             task_scene_outline = Task(
                 description=f"""
-                Create a SINGLE scene outline (not multiple scenes) showing character contradictions in action:
+                Create beat-by-beat outline for ONE scene (2-3 screenplay pages):
                 
                 ORIGINAL LOGLINE: '{logline}'
-                ANALYSIS: {{task_analyze}}
-                CHARACTER BIBLE: {{task_character_bible}}
+                SCENE ANALYSIS: {{task_analyze}}
+                CHARACTER DYNAMICS: {{task_character_bible}}
                 
                 REQUIREMENTS:
-                - ONE scene only, taking place in the EXACT setting from the logline: '{logline}'
-                - Use EXACT ages, location, and weather from the original logline
-                - 3 paragraphs maximum (Setup, Escalation, Climax)
-                - Show how conscious and unconscious desires create behavioral contradictions
-                - Keep all action within the specified location
-                - Focus on one dramatic moment, not a complete story
+                - Opening Beat: Character's initial value state
+                - 3-5 Escalating Beats: Specific action/reaction exchanges
+                - Turning Point Beat: Moment of value shift
+                - Closing Beat: Character's new value state
+                - Use EXACT setting from logline
+                - Each beat must be specific, observable action
                 """,
                 agent=self.scene_architect,
-                expected_output="Single scene outline (3 paragraphs) with character psychology driving action.",
+                expected_output="McKee beat structure outline for single 2-3 page scene.",
                 context=[task_analyze, task_character_bible]
             )
             
             # Task 4: Authentic Dialogue (Claude)  
             task_dialogue = Task(
                 description=f"""
-                Write dialogue where characters pursue conscious desires while unconscious desires leak through:
+                Write dialogue for McKee scene transformation:
                 
-                CHARACTER BIBLE: {{task_character_bible}}
-                SCENE OUTLINE: {{task_scene_outline}}
+                BEAT STRUCTURE: {{task_scene_outline}}
+                CHARACTER PSYCHOLOGY: {{task_character_bible}}
                 
                 CONSTRAINTS:
-                - Maximum 8-12 lines of dialogue total
-                - Single scene only (use the setting from the logline)
-                - Focus on one key dramatic moment
-                - Create authentic 60-year-old speech patterns with meaningful subtext.
+                - 15-25 lines of dialogue maximum (fits 2-3 screenplay pages)
+                - Each line serves a specific beat in the value transformation
+                - Age-appropriate speech for 60+ characters
+                - Include essential action/parentheticals
+                - Focus on the single value shift, not complete story
                 """,
                 agent=self.dialogue_specialist,
-                expected_output="8-12 lines of authentic dialogue revealing character contradictions.",
+                expected_output="15-25 lines of dialogue driving single scene transformation.",
                 context=[task_character_bible, task_scene_outline]
             )
             
@@ -153,19 +164,23 @@ class MixedModelSceneSmithCrew:
             # Task 5: AI Detection & Final Polish (Claude)
             task_final_scene = Task(
                 description=f"""
-                Eliminate AI-like writing and deliver production-ready screenplay:
+                Create final screenplay ensuring McKee scene principles:
                 
                 ORIGINAL LOGLINE: '{logline}'
-                CHARACTER BIBLE: {{task_character_bible}}
-                SCENE OUTLINE: {{task_scene_outline}}
+                SCENE STRUCTURE: {{task_scene_outline}}
                 DIALOGUE: {{task_dialogue}}
                 
-                CRITICAL: Ensure final screenplay uses EXACT setting, ages, and details from original logline: '{logline}'
+                VERIFICATION CHECKLIST:
+                - Clear value shift in main character
+                - Proper beat structure driving change
+                - 2-3 pages maximum in screenplay format
+                - Eliminates AI writing patterns
+                - Uses exact setting from logline
                 
-                Remove purple prose, clichés, and artificial patterns. Create authentic human behavior.
+                OUTPUT: Complete, professionally formatted scene with FADE IN/FADE OUT.
                 """,
                 agent=self.creative_reviewer,
-                expected_output="Production-ready screenplay free of AI-writing patterns.",
+                expected_output="Professional 2-3 page screenplay scene with clear McKee structure.",
                 context=[task_character_bible, task_scene_outline, task_dialogue]
             )
             

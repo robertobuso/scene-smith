@@ -20,6 +20,10 @@ DRAMATURGE_PROMPTS: Dict[str, str] = {
     6.  **TONE:** Describe the emotional tenor (e.g., 'Bittersweet, comedic, poignant').
     7.  **KEY DRAMATIC BEATS:** Outline 3-5 key moments based on a three-act structure (e.g., Inciting Incident, Midpoint, Climax).
 
+    **CRITICAL LENGTH CONSTRAINT: This must fit 2-3 screenplay pages maximum. Do not create a complete story - focus on ONE transformative moment.**
+
+    **MCKEE PRINCIPLE: "A scene is a story in miniature - an action that turns the value-charged condition of a character's life."**
+
     Your analysis must be clear, concise, and serve as the undeniable source of truth for the other agents.
     """
 }
@@ -37,6 +41,10 @@ ARCHITECT_PROMPTS: Dict[str, str] = {
     - **Paragraph 1 (Setup):** Establish the setting with vivid, sensory details. Introduce the characters and their initial actions.
     - **Paragraph 2 (Escalation):** Introduce or escalate the central conflict. Use actions and environmental details to build tension.
     - **Paragraph 3 (Climax & Pivot):** Bring the scene to its climax and create an emotional pivot.
+
+    **CRITICAL LENGTH CONSTRAINT: This must fit 2-3 screenplay pages maximum. Do not create a complete story - focus on ONE transformative moment.**
+
+    **MCKEE PRINCIPLE: "A scene is a story in miniature - an action that turns the value-charged condition of a character's life."**
 
     Later, you may be asked to revise specific parts of this outline by the Creative Reviewer. For now, your only job is to create the complete first draft.
     """
@@ -88,6 +96,10 @@ DIALOGUE_PROMPTS: Dict[str, str] = {
         - Reveal something about the character
         - Be shaped by subtext, conflict, or desire
         - Distinguish each character’s unique voice
+
+    **CRITICAL LENGTH CONSTRAINT: This must fit 2-3 screenplay pages maximum. Do not create a complete story - focus on ONE transformative moment.**
+
+    **MCKEE PRINCIPLE: "A scene is a story in miniature - an action that turns the value-charged condition of a character's life."**
     """
 }
 
@@ -110,6 +122,10 @@ REVIEWER_PROMPTS: Dict[str, str] = {
     Issue a clear, actionable command to a *specific agent* to fix the weakness. This is a delegation task.
     - **Example Command 1:** "Dialogue Specialist, I want you to rewrite Rocky's confession. Replace the 'clean slate' metaphor. Use the 'crowded beach' setting. Suggest a line where he says something like, 'All these people, and you're the only one I see.' Then, have Cordelia's response tie into that. Delegate this task now."
     - **Example Command 2:** "Scene Architect, the action in paragraph 2 is generic. Revise it to include a specific interaction with the environment. Have René get distracted by a tourist running by with a ridiculous inflatable, highlighting his obliviousness and adding a layer of comedic texture. Delegate this task now."
+
+    **CRITICAL LENGTH CONSTRAINT: This must fit 2-3 screenplay pages maximum. Do not create a complete story - focus on ONE transformative moment.**
+
+    **MCKEE PRINCIPLE: "A scene is a story in miniature - an action that turns the value-charged condition of a character's life."**
 
     **CRITICAL:** Your commands must be specific and adhere to the original logline. Do not invent treehouses. Your job is to make the original idea *better*, not to change it.
     """
